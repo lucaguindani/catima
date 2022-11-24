@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.1 (HEAD)
+  labels:
+    io.kompose.service: catima-worker
+  name: catima-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: catima-worker
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.1 (HEAD)
+      labels:
+        io.kompose.network/app-catima-net: "true"
+        io.kompose.service: catima-worker
+    spec:
+      containers:
+        - image: unillett/catima:latest-worker
+          name: catima-worker
+          envFrom:
+            - configMapRef:
+              name: catima-config
+            - secretRef:
+              name: catima-secrets
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/www/catima
+              name: app-data
+      restartPolicy: Always
+      volumes:
+        - name: app-data
+          persistentVolumeClaim:
+            claimName: app-data
+status: {}

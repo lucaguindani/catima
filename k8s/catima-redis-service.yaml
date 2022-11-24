@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.1 (HEAD)
+  labels:
+    io.kompose.service: catima-redis
+  name: catima-redis
+spec:
+  ports:
+    port: 6379
+    targetPort: 6379
+  selector:
+    io.kompose.service: catima-redis
+status:
+  loadBalancer: {}
