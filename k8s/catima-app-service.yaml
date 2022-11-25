@@ -9,8 +9,8 @@ metadata:
   name: catima-app
 spec:
   ports:
-    port: 8383
-    targetPort: 3000
+    - port: 8383
+      targetPort: 3000
   selector:
     io.kompose.service: catima-app
 status:
