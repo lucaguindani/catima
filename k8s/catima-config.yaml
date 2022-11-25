@@ -5,11 +5,11 @@ metadata:
 data:
   RAILS_ENV: development
   REDIS_HOST: catima-redis
-  REDIS_PORT: 6379
+  REDIS_PORT: "6379"
   POSTGRES_HOST: catima-postgres
-  POSTGRES_PORT: 5432
+  POSTGRES_PORT: "5432"
   MAIL_SMTP_ADDRESS: catima-mailhog
-  MAIL_SMTP_PORT: 1025
+  MAIL_SMTP_PORT: "1025"
   ASSET_HOST: http://catima.lan:8383
   DOMAIN: catima.lan:8383
   PROTOCOL: http

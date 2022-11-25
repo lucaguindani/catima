@@ -23,6 +23,16 @@ spec:
         io.kompose.network/app-catima-net: "true"
         io.kompose.service: catima-app
     spec:
+      initContainers:
+        - image: alpine/git
+          name: git-cloner
+          command:
+            - git
+            - clone
+            - --branch
+            - master
+            - https://github.com/shamimice03/demo-init-container.git
+            - /var/www/catima
       containers:
         - image: unillett/catima:latest-app
           name: catima-app

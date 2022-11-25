@@ -23,6 +23,15 @@ spec:
         io.kompose.network/app-catima-net: "true"
         io.kompose.service: catima-worker
     spec:
+      initContainers:
+        - name: wait-for-app
+          image: atkrad/wait4x:latest
+          command:
+            - wait4x
+            - http
+            - http://catima-app:8383/health
+            - --expect-status-code
+            - "200"
       containers:
         - image: unillett/catima:latest-worker
           name: catima-worker
