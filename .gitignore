@@ -3,6 +3,10 @@ docker/.env
 supervisord.log
 supervisord.pid
 
+# K8s
+k8s/configmap.yaml
+k8s/secrets.yaml
+
 # Ignore bundler config.
 /.bundle
 
