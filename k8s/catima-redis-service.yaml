@@ -10,8 +10,5 @@ metadata:
 spec:
   ports:
     - port: 6379
-      targetPort: 6379
   selector:
     io.kompose.service: catima-redis
-status:
-  loadBalancer: {}

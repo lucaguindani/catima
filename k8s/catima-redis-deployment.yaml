@@ -20,7 +20,6 @@ spec:
         kompose.cmd: kompose convert
         kompose.version: 1.26.1 (HEAD)
       labels:
-        io.kompose.network/app-catima-net: "true"
         io.kompose.service: catima-redis
     spec:
       containers:

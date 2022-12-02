@@ -9,9 +9,6 @@ metadata:
   name: catima-postgres
 spec:
   ports:
-    - port: 5410
-      targetPort: 5432
+    - port: 5432
   selector:
     io.kompose.service: catima-postgres
-status:
-  loadBalancer: {}

@@ -12,8 +12,8 @@ data:
   REDIS_PORT: "6379"
   POSTGRES_HOST: catima-postgres
   POSTGRES_PORT: "5432"
-  MAIL_SMTP_ADDRESS: catima-mailhog
-  MAIL_SMTP_PORT: "1025"
+  MAIL_SMTP_ADDRESS: smtp.example.com
+  MAIL_SMTP_PORT: "25"
   ASSET_HOST: http://catima.lan:8383
   DOMAIN: catima.lan:8383
   PROTOCOL: http
