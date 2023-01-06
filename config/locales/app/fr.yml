@@ -665,11 +665,14 @@ fr:
         import_from_csv: "Importer %{item_types} d'un fichier CSV"
         import: Importer
         file: Fichier
+        file_encoding: Encodage du fichier
+        detect_option: "Détecter automatiquement"
       create:
         error: Le contenu du fichier ne peut pas être parsé
         file_not_csv: ne semble pas être au format CSV
         file_must_have_at_least_one_row: doit avoir au moins une ligne de données
         file_no_column_names_recognized: aucune colonne n'est identifiable
+        encoding_not_supported: encodage non supporté
 
     dashboard:
       data:
@@ -803,6 +806,8 @@ fr:
         import_docx: Importer un DOCX
         import_error_not_supported: Erreur lors de l'importation du fichier Word. Seuls les fichiers DOCX sont supportés.
         import_error: Erreur lors de l'importation du fichier Word.
+        help_formatted_text_title: Restrictions du texte formaté
+        help_formatterd_text_content: Uniquement disponible si les options "champ primaire" et "inclure dans la liste des fiches en mode consultation" sont désactivées
       xref_option_inputs:
         url: "URL Xref"
         url_help: "URL complète du service externe"
