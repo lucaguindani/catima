@@ -54,6 +54,8 @@ class Field::ComplexDatation < ::Field
 
   def csv_value(item, _user=nil)
     value = raw_value(item)
+    return '' if value.nil?
+
     case value["selected_format"]
     when 'date_time'
       Field::ComplexDatationPresenter.new(nil, item, self).value
@@ -156,17 +158,15 @@ class Field::ComplexDatation < ::Field
     end.sum
   end
 
-  def field_value_for_item(item)
-    field_value(item, self)
+  def field_value_for_item(item, options={})
+    field_value(item, self, options)
   end
 
   def search_conditions_as_hash(locale)
     [
       { :value => I18n.t("advanced_searches.fields.date_time_search_field.exact", locale: locale), :key => "exact" },
       { :value => I18n.t("advanced_searches.fields.date_time_search_field.after", locale: locale), :key => "after" },
-      { :value => I18n.t("advanced_searches.fields.date_time_search_field.before", locale: locale), :key => "before" },
-      { :value => I18n.t("advanced_searches.fields.date_time_search_field.between", locale: locale), :key => "between" },
-      { :value => I18n.t("advanced_searches.fields.date_time_search_field.outside", locale: locale), :key => "outside" }
+      { :value => I18n.t("advanced_searches.fields.date_time_search_field.before", locale: locale), :key => "before" }
     ]
   end
 

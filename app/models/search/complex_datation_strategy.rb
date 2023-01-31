@@ -76,9 +76,9 @@ class Search::ComplexDatationStrategy < Search::BaseStrategy
 
     if is_choice
       field_condition = if components_empty?(start_date_time)
-                         "after"
-                        elsif components_empty?(end_date_time)
                           "before"
+                        elsif components_empty?(end_date_time)
+                          "after"
                         elsif end_date_time == start_date_time
                           "exact"
                         else
@@ -330,7 +330,12 @@ class Search::ComplexDatationStrategy < Search::BaseStrategy
   end
 
   def append_where_data_is_set(scope)
-    scope.where("#{sql_select_table_name}.data->'#{field.uuid}' IS NOT NULL")
+    scope.where("(#{sql_select_table_name}.data->'#{field.uuid}' IS NOT NULL)
+      AND (
+        (#{sql_select_table_name}.data->'#{field.uuid}'->>'selected_format' = 'date_time' AND ((NOT (#{where_date_is_not_set('from')})) OR (NOT (#{where_date_is_not_set('to')}))) )
+        OR (#{sql_select_table_name}.data->'#{field.uuid}'->>'selected_format' = 'datation_choice' AND  coalesce(items.data->'#{field.uuid}'->'selected_choices'->'value', NULL) IS NOT NULL)
+      )
+    ")
   end
 
   def append_joins_on_choices_and_choice_sets(scope)

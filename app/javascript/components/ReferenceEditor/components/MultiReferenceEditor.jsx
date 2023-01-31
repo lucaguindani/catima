@@ -4,9 +4,10 @@ import ReactSelect from 'react-select';
 import striptags from 'striptags';
 import LoadingDots from '../../StyleControl/components/LoadingDots';
 import Validation from "../modules/validation";
+import Translations from '../../Translations/components/Translations';
 import {loadingDotsStyle, filterDropdownStyle} from '../modules/styles';
 
-const WAIT_INTERVAL = 800;
+const WAIT_INTERVAL = 1000;
 
 const MultiReferenceEditor = (props) => {
   const {
@@ -32,6 +33,7 @@ const MultiReferenceEditor = (props) => {
   const [availableRefsSelectedFilter, setAvailableRefsSelectedFilter] = useState(null)
   const [selectedRefsSelectedFilter, setSelectedRefsSelectedFilter] = useState(null)
   const [filterAvailableInputValue, setFilterAvailableInputValue] = useState('')
+  const [isHover, setIsHover] = useState(false)
   const [filterSelectedInputValue, setFilterSelectedInputValue] = useState('')
   const [isValid, setIsValid] = useState(Validation.isValid(
     req,
@@ -44,6 +46,22 @@ const MultiReferenceEditor = (props) => {
   const editorId = `${srcRef}-editor`;
   const availableRefsFilterId = `${srcRef}-available-filters`;
   const selectedRefsFilterId = `${srcRef}-selected-filters`;
+
+  const loadMoreButtonStyle = {
+    textAlign: "center",
+    color: isHover ? "#004e90" : "#337ab7",
+    cursor: "pointer",
+    height: 40,
+    paddingTop: 10,
+    paddingBottom: 10
+  };
+
+  const handleMouseEnter = () => {
+    setIsHover(true);
+  };
+  const handleMouseLeave = () => {
+    setIsHover(false);
+  };
 
   useEffect(() => {
     if (items.length < 25) {
@@ -95,7 +113,7 @@ const MultiReferenceEditor = (props) => {
 
   const _fetchItems = async (search, pageArg) => {
     if (!isFetching && loadMore) {
-      // Avoir useless API calls if there are less than 25 loaded items and the user searches
+      // Avoid useless API calls if there are less than 25 loaded items and the user searches
       if (items.length < 25 && search.length > 0) {
         let regexExp = new RegExp(search, 'i')
         setItems(
@@ -121,9 +139,9 @@ const MultiReferenceEditor = (props) => {
       setIsFetching(true)
 
       if (filterAvailableInputValue === null) {
-        setFilterAvailableInputValue('')
+        setFilterAvailableInputValue('');
       }
-      // http://localhost:3000/react/atlastopvaud/fr/toponymes?search=qsdf&page=1
+
       let currentPage = page + 1;
       let currentItems = items;
       let itemsUrlVar = `${itemsUrl}?search=${filterAvailableInputValue}&page=${currentPage}`
@@ -158,7 +176,6 @@ const MultiReferenceEditor = (props) => {
   }
 
   function _availableRefsItemName(item) {
-    // if(typeof this.state === 'undefined') return striptags(item.default_display_name);
     if ((availableRefsSelectedFilter === null
       || item[availableRefsSelectedFilter.value] === null
       || typeof item[availableRefsSelectedFilter.value] === 'undefined'
@@ -170,7 +187,6 @@ const MultiReferenceEditor = (props) => {
   }
 
   function _selectedRefsItemName(item) {
-    // if(typeof this.state === 'undefined') return striptags(item.default_display_name);
     if ((selectedRefsSelectedFilter === null
       || item[selectedRefsSelectedFilter.value] === null
       || typeof item[selectedRefsSelectedFilter.value] === 'undefined'
@@ -209,12 +225,14 @@ const MultiReferenceEditor = (props) => {
 
   const _filterAvailableReferences = async (e) => {
     clearTimeout(timer.current);
+
     let searchTerm = e.target.value;
     if (searchTerm !== filterAvailableInputValue) {
       setLoadMore(true);
     }
     setFilterAvailableInputValue(searchTerm)
     setIsSearching(true)
+
     timer.current = setTimeout(() => {
       if (!isFetching) {
         let config = {
@@ -222,11 +240,11 @@ const MultiReferenceEditor = (props) => {
           retryDelay: 1000,
         };
 
-        let currentPage = 1
         if (filterAvailableInputValue === null) {
           setFilterAvailableInputValue('');
         }
-        let itemsUrlVar = `${itemsUrl}?search=${searchTerm}&page=${currentPage}`
+
+        let itemsUrlVar = `${itemsUrl}?search=${searchTerm}&page=1`
         selectedItems.forEach((itemId) => {
           itemsUrlVar = itemsUrlVar + `&except[]=${itemId}`
         });
@@ -235,6 +253,8 @@ const MultiReferenceEditor = (props) => {
           .then(res => {
             setItems(res.data.items)
             setIsSearching(false)
+            // Reset pagination on search value change
+            setPage(1);
           });
       }
     }, WAIT_INTERVAL);
@@ -250,6 +270,10 @@ const MultiReferenceEditor = (props) => {
       itm =>
         parseInt(itm.id.split('-')[1])
     );
+  }
+
+  function isLoadMoreLabelDisplayed() {
+    return loadMore && !isFetching && !isSearching;
   }
 
   function updateButtonStatus() {
@@ -269,35 +293,24 @@ const MultiReferenceEditor = (props) => {
     }
   }
 
-  const handleScroll = (e) => {
-    const bottom = e.target.clientHeight - (e.target.scrollHeight - e.target.scrollTop) > -10;
-    if (bottom) {
-      if (!isFetching && loadMore) {
-        _fetchItems();
-      }
-    }
-  }
-
   function renderAvailableItemDiv(item, selectedItemsArg) {
     if (item.default_display_name === null) {
       return null;
     }
+
     const itemDivId = `${srcId}-${item.id}`;
-    if (selectedItemsArg == false && selectedItems.indexOf(item.id) > -1) return null;
-    if (selectedItemsArg == true && selectedItems.indexOf(item.id) == -1) return null;
+    if (selectedItemsArg === false && selectedItems.indexOf(item.id) > -1) return null;
+    if (selectedItemsArg === true && selectedItems.indexOf(item.id) === -1) return null;
+
     // Filtering the unselected items ItemList
-    if (selectedItemsArg == false && filterAvailableInputValue !== '') {
+    if (selectedItemsArg === false && filterAvailableInputValue !== '' && availableRefsSelectedFilter !== null) {
       let isInString = -1;
-      if (availableRefsSelectedFilter !== null) {
         if (item[availableRefsSelectedFilter.value] !== null && item[availableRefsSelectedFilter.value].length !== 0) {
           let searchString = item.default_display_name.toLowerCase() + ' - ' + JSON.stringify(item[availableRefsSelectedFilter.value]).toLowerCase();
           isInString = searchString.indexOf(filterAvailableInputValue.toLowerCase());
         } else {
           isInString = item.default_display_name.toLowerCase().indexOf(filterAvailableInputValue.toLowerCase());
         }
-      } else {
-        isInString = item.default_display_name.toLowerCase().indexOf(filterAvailableInputValue.toLowerCase());
-      }
       if (isInString === -1) return null;
     }
 
@@ -310,12 +323,13 @@ const MultiReferenceEditor = (props) => {
 
   function renderSelectedItemDiv(item) {
     const itemDivId = `${srcId}-${item.id}`;
+
     // Filtering the selected items ItemList
     if (filterSelectedInputValue !== '') {
       let isInString = -1;
       if (selectedRefsSelectedFilter !== null &&
-        item[selectedRefsSelectedFilter.value] !== null &&
-        item[selectedRefsSelectedFilter.value].length !== 0
+          item[selectedRefsSelectedFilter.value] !== null &&
+          item[selectedRefsSelectedFilter.value].length !== 0
       ) {
         let searchString = item.default_display_name.toLowerCase() + ' - ' + JSON.stringify(item[selectedRefsSelectedFilter.value]).toLowerCase();
         isInString = searchString.indexOf(filterSelectedInputValue.toLowerCase());
@@ -337,7 +351,7 @@ const MultiReferenceEditor = (props) => {
          style={Validation.getStyle(req, srcRef, 'MultiReferenceEditor')}
     >
       <div id={editorId} className="wrapper">
-        <div className="availableReferences" onScroll={handleScroll}>
+        <div className="availableReferences">
           <div className="input-group">
 
             <input
@@ -371,6 +385,15 @@ const MultiReferenceEditor = (props) => {
             {items.map(item =>
               renderAvailableItemDiv(item, false)
             )}
+            {isLoadMoreLabelDisplayed() &&
+                <div className="load-more"
+                     onClick={_fetchItems}
+                     style={loadMoreButtonStyle}
+                     onMouseEnter={handleMouseEnter}
+                     onMouseLeave={handleMouseLeave}>
+                  {Translations.messages['catalog_admin.fields.reference_editor.load_more']}
+                </div>
+            }
             {isFetching && <LoadingDots/>}
           </div>
         </div>
