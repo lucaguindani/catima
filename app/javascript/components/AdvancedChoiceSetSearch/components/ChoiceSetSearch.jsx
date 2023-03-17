@@ -1,6 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import ReactSelect from 'react-select';
 import LinkedCategoryInput from './LinkedCategoryInput';
+import AsyncPaginate from 'react-select-async-paginate';
+import axios from "axios";
+import Translations from "../../Translations/components/Translations";
 
 const ChoiceSetSearch = (props) => {
   const {
@@ -11,7 +14,7 @@ const ChoiceSetSearch = (props) => {
     childChoicesActivatedYesLabel,
     childChoicesActivatedNoLabel,
     locale,
-    items,
+    choiceSet,
     addComponent,
     itemId,
     deleteComponent,
@@ -42,6 +45,11 @@ const ChoiceSetSearch = (props) => {
   const [choiceSetId, setChoiceSetId] = useState(`${srcId}`)
   const [choiceSetRef, setChoiceSetRef] = useState(`${srcRef}`)
 
+  const [loadingMessage, setLoadingMessage] = useState(Translations.messages['active_record.loading'])
+  const [isInitialized, _setIsInitialized] = useState(false)
+  const [optionsList, setOptionsList] = useState([])
+  const [choices, setChoices] = useState([])
+
   useEffect(() => {
     if (typeof selectConditionProps !== 'undefined' && selectConditionProps.length !== 0) {
       setSelectedCondition(selectConditionProps[0].key)
@@ -70,7 +78,7 @@ const ChoiceSetSearch = (props) => {
 
   function _selectItem(item, event) {
     if (typeof event === 'undefined' || event.action !== "pop-value" || !req) {
-      if (typeof item !== 'undefined') {
+      if (typeof item !== 'undefined' && item !== null) {
         if (item.data.length === 0) {
           setSelectedCategory({});
           setSelectedCondition('');
@@ -79,6 +87,9 @@ const ChoiceSetSearch = (props) => {
         setSelectedItem(item)
       } else {
         setSelectedItem([])
+        setSelectedCategory({});
+        setSelectedCondition('');
+        setSelectCondition([]);
       }
     }
   }
@@ -156,13 +167,13 @@ const ChoiceSetSearch = (props) => {
     };
   }
 
-  function _getItemOptions() {
-    let optionsList = [];
-    optionsList = items.map(item =>
-      _getJSONItem(item)
+  function _getItemOptions(providedChoices = false) {
+    let computedChoices = providedChoices ? providedChoices : choices
+    computedChoices = computedChoices.map(choice =>
+        _getJSONItem(choice)
     );
 
-    return optionsList;
+    return computedChoices;
   }
 
   function _getJSONItem(item) {
@@ -195,6 +206,51 @@ const ChoiceSetSearch = (props) => {
     }
   }
 
+
+  async function _loadOptions(search, loadedOptions, {page}) {
+    if (optionsList.length < 25 && isInitialized) {
+      if (search.length > 0) {
+        let regexExp = new RegExp(search, 'i')
+
+        let choices = optionsList.filter(function (choice) {
+          return choice.label !== null && choice.label.match(regexExp) !== null && choice.label.match(regexExp).length > 0
+        });
+        return {
+          options: choices,
+          hasMore: false,
+          additional: {
+            page: page + 1,
+          },
+        };
+      }
+      return {
+        options: _getItemOptions(),
+        hasMore: choices.length === 25,
+        additional: {
+          page: page + 1,
+        },
+      };
+    }
+
+    const res = await axios.get(`${choiceSet.fetchUrl}&search=${search}&page=${page}`)
+
+    if (!isInitialized) {
+      setChoices(res.data.choices)
+      setLoadingMessage(res.data.loading_message)
+      setOptionsList(res.data.choices.map(choice => _getJSONItem(choice)))
+
+      return {
+        options: _getItemOptions(res.data.choices),
+        hasMore: res.data.hasMore,
+        additional: {
+          page: page + 1,
+        },
+      };
+    }
+  }
+
+
+
   function renderSelectConditionElement() {
     return (
       <select className="form-control filter-condition" name={selectConditionName}
@@ -221,9 +277,27 @@ const ChoiceSetSearch = (props) => {
   function renderChoiceSetElement() {
     return (
       <div>
-        <ReactSelect id={choiceSetId} name={_buildInputNameCondition(selectedCondition)}
-                     options={_getItemOptions()} className="basic-multi-select" onChange={_selectItem}
-                     classNamePrefix="select" placeholder={searchPlaceholder}/>
+        <AsyncPaginate
+            id={choiceSetId}
+            name={_buildInputNameCondition(selectedCondition)}
+            options={optionsList}
+            className={"basic-multi-select"}
+            delimiter=","
+            loadOptions={_loadOptions}
+            debounceTimeout={800}
+            isSearchable={true}
+            isClearable={true}
+            isMulti={false}
+            loadingMessage={() => searchPlaceholder}
+            searchingMessage={() => searchPlaceholder}
+            placeholder={ Translations.messages['select_placeholder'] }
+            noOptionsMessage={() => Translations.messages['no_options']}
+            additional={{
+              page: 1,
+            }}
+            styles={{menuPortal: base => ({...base, zIndex: 9999})}}
+            onChange={_selectItem}
+        />
       </div>
     );
   }
@@ -262,7 +336,7 @@ const ChoiceSetSearch = (props) => {
   }
 
   return (
-    <div className="col-lg-12 choiceset-search-container">
+    <div className="col-lg-12 choiceset-search-container choiceSetInput">
       <div className="row">
         <div className="col-lg-2">
           {renderFieldConditionElement()}
@@ -270,7 +344,7 @@ const ChoiceSetSearch = (props) => {
         <div className={_getChoiceSetClassname()}>
           {renderChoiceSetElement()}
         </div>
-        {(selectedItem.length !== 0 && selectedItem.has_childrens == true) &&
+        {(selectedItem.length !== 0 && selectedItem.has_childrens === true) &&
         <div className="col-lg-3">
           {renderChildChoicesActivated()}
         </div>
@@ -300,19 +374,19 @@ const ChoiceSetSearch = (props) => {
           </div>
         </div>
         }
-        {!(((selectedItem.length !== 0 && selectedItem.has_childrens == true)) && ((selectedItem.length !== 0 && selectedItem.data.length !== 0))) &&
+        {!(((selectedItem?.length !== 0 && selectedItem.has_childrens === true)) && ((selectedItem?.length !== 0 && selectedItem?.data?.length !== 0))) &&
         <div className="col-lg-3">
           {renderSelectConditionElement()}
         </div>
         }
       </div>
       <div className="row">
-        {(((selectedItem.length !== 0 && selectedItem.has_childrens == true)) && ((selectedItem.length !== 0 && selectedItem.data.length !== 0))) &&
+        {(((selectedItem?.length !== 0 && selectedItem.has_childrens === true)) && ((selectedItem?.length !== 0 && selectedItem?.data?.length !== 0))) &&
         <div className="col-lg-3" style={{marginTop: '10px'}}>
           {renderSelectConditionElement()}
         </div>
         }
-        {(Object.keys(selectedCategory).length !== 0 && selectedItem.data.length !== 0) &&
+        {(Object.keys(selectedCategory).length !== 0 && selectedItem?.data?.length !== 0) &&
         <div className="col-lg-offset-2 col-lg-6">{renderLinkedCategoryElement()}</div>
         }
       </div>

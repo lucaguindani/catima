@@ -18,13 +18,12 @@ manage_states = ->
 # must be enabled or disabled as value.
 fields_disabled_policies = {
   field_formatted_text: ->
-    is_checked('field_primary') || is_checked('field_display_in_public_list')
+    is_checked('field_primary')
   ,
   field_primary: ->
     is_checked('field_formatted_text') || is_checked('field_restricted')
   ,
   field_restricted: -> is_checked('field_primary'),
-  field_display_in_public_list: -> is_checked('field_formatted_text'),
   field_default_value: -> is_checked('field_auto_increment')
 }
 

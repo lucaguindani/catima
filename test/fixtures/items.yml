@@ -65,7 +65,7 @@ one_author_stephen_king:
       "size": 192000,
       "type": "document/doc"
     },
-    "one_author_language_uuid": "<%= ActiveRecord::FixtureSet.identify(:one_spanish) %>",
+    "one_author_language_uuid": ["<%= ActiveRecord::FixtureSet.identify(:one_spanish).to_s %>"],
     "one_author_other_languages_uuid": [
       "<%= ActiveRecord::FixtureSet.identify(:one_spanish) %>",
       "<%= ActiveRecord::FixtureSet.identify(:one_english) %>"
@@ -149,6 +149,13 @@ one_book_theory_of_relativity:
   item_type: another_book
   data: { "another_book_title_uuid": "Theory of Relativity" }
 
+one_book_mister_nobody:
+  catalog: one
+  creator: one_user_deleted
+  updater: one_user_deleted
+  item_type: another_book
+  data: { "another_book_title_uuid": "Mr. Nobody" }
+
 one_book_end_of_watch:
   catalog: one
   creator: one_admin
@@ -156,7 +163,8 @@ one_book_end_of_watch:
   item_type: one_book
   data: {
     "one_book_title_uuid": "End of Watch",
-    "one_book_author_uuid": one_author_very_young
+    "one_book_author_uuid": one_author_very_young,
+    "one_book_notes_uuid": "Very good book"
   }
 
 one_book_finders_keepers:

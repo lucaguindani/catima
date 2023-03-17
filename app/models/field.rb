@@ -228,9 +228,11 @@ class Field < ApplicationRecord
 
   # Whether or not this field can be displayed in the public list view.
   # Override for allowing a field to be displayed in the public list view
-  # although it's not human readable.
+  # although it's not human readable nor filterable.
   def displayable_in_public_list?
-    human_readable?
+    return true if human_readable?
+
+    return true if filterable?
   end
 
   def raw_value(item, locale=I18n.locale, suffix="")
@@ -429,7 +431,12 @@ class Field < ApplicationRecord
     build_validators.each do |val|
       val = Array.wrap(val)
       options = val.extract_options!
-      validates_with(val.first, options.merge(:attributes => :default_value))
+      validates_with(
+        val.first,
+        options.merge(
+          :attributes => :default_value
+        )
+      )
     end
   end
 

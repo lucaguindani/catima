@@ -62,6 +62,15 @@ en:
         api_key: "Authentication tokens"
     errors:
       models:
+        item:
+          attributes:
+            base:
+              negative_dates: "Negative dates must be entered with the option before Jesus Christ (if activated)"
+        choice:
+          attributes:
+            base:
+              dates_must_be_present: "One of the two dates must be completed"
+              negative_dates: "Negative dates must be entered with the option before Jesus Christ (if activated)"
         csv_import:
           attributes:
             file:
@@ -266,17 +275,17 @@ en:
       describe_suggestion: Please describe your suggestion here...
   invitations_mailer:
     account_information:
-      email: "Email"
-      info_you_will_need: "Here is the account information you’ll need to log in:"
-      password: "Password"
-      set_your_password: "Click here to set your password"
-      url: "URL"
+      account_email: "Your current email will be used as login for your account."
+      info_you_will_need: "You can find below the informations you’ll need to log in:"
+      set_your_password: "Click here to set your account's password"
+      link_to_catalog: "Then click here to access the «%{catalog}» catalog"
+      link_to_admin: "Then click here to list the catalogs you can administer"
     catalog_admin:
       catalog_admin_role: "As a catalog administrator, you will be able to add and edit records in the catalog, change the design of the catalog, and invite other users to collaborate as editors."
       invited_to_access_html:
         one: "%{invited_by} has invited you to be an administrator of the %{catalogs} catalog."
         other: "%{invited_by} has invited you to be an administrator of the %{catalogs} catalogs."
-      subject: "Your administrator invitation for %{catalog}"
+      subject: "Your administrator invitation for %{catalogs}"
     system_admin:
       invited_to_access_html: "%{invited_by} has invited you to be a system administrator at %{catalog}."
       subject: "Your system administrator invitation for %{host}"
@@ -293,7 +302,7 @@ en:
       invited_to_access_html: "%{invited_by} has invited you to become a member in group «%{group}» on %{baseurl}."
     membership:
       subject: "You have been added to group %{group}"
-      invited_to_msg: "%{invited_by} has added you to the group «%{group}» of catalog «%{catalog}»."
+      invited_to_msg_html: "%{invited_by} has added you to the group «%{group}» of catalog «%{catalog}»."
       view_my_groups: "You can view your group memberships here:"
   export_mailer:
     export:
@@ -468,6 +477,8 @@ en:
   deactivate: Deactivate
   reactivate: Reactivate
   loading: Loading
+  no_options: "No Options"
+  select_placeholder: "Select a value"
   add_field: Add field
   item_link: Item link
 
@@ -588,7 +599,7 @@ en:
         show_hierarchy: "Show hierarchy"
         hide_hierarchy: "Hide hierarchy"
       choice_modal:
-        create_new_field: Create new
+        create_new_field: Create a new choice
         position:
           first: first
           last: last
@@ -800,7 +811,7 @@ en:
         import_error_not_supported: Error while importing Word file. Only DOCX files are supported.
         import_error: Error while importing Word file.
         help_formatted_text_title: Formatted text limitations
-        help_formatterd_text_content: Only enabled if "primary field" and "include in site list view" options are both disabled
+        help_formatterd_text_content: Only enabled if "primary field" option is disabled
       xref_option_inputs:
         url: "Xref URL"
         url_help: "Full URL of the external service"
